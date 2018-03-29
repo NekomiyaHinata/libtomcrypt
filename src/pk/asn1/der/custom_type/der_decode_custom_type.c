@@ -55,6 +55,7 @@ int der_decode_custom_type_ex(const unsigned char *in,   unsigned long  inlen,
    ltc_asn1_list ident;
    unsigned long size, x, y, z, blksize;
    unsigned char* in_new = NULL;
+   unsigned int depth;
    void          *data;
 
    LTC_ARGCHK(in   != NULL);
@@ -139,6 +140,14 @@ int der_decode_custom_type_ex(const unsigned char *in,   unsigned long  inlen,
        list[i].used = 0;
    }
    ordered = flags & LTC_DER_SEQ_ORDERED;
+   depth = (flags & LTC_DER_SEQ_DEPTH) >> 8;
+   if (depth > LTC_DER_MAX_RECURSION) {
+      err = CRYPT_PK_ASN1_ERROR;
+      goto LBL_ERR;
+   }
+   depth++;
+   flags &= ~LTC_DER_SEQ_DEPTH;
+   flags |= depth << 8;
 
    /* ok read data */
    seq_err  = CRYPT_OK;
@@ -352,7 +361,7 @@ int der_decode_custom_type_ex(const unsigned char *in,   unsigned long  inlen,
 
            case LTC_ASN1_CUSTOM_TYPE:
                z = inlen;
-               err = der_decode_custom_type(in + x, z, &list[i]);
+               err = der_decode_custom_type_ex(in + x, z, &list[i], NULL, 0, (flags & ~LTC_DER_SEQ_FLAGS_MASK) | LTC_DER_SEQ_ORDERED | LTC_DER_SEQ_RELAXED);
                if (err == CRYPT_INPUT_TOO_LONG) {
                   seq_err = CRYPT_INPUT_TOO_LONG;
                   err = CRYPT_OK;

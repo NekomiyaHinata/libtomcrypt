@@ -624,6 +624,9 @@ enum ltc_der_seq {
    LTC_DER_SEQ_RELAXED = LTC_DER_SEQ_ZERO,
    LTC_DER_SEQ_STRICT = 0x2u,
 
+   /** Bits15-8 - depth */
+   LTC_DER_SEQ_DEPTH = 0xFF00u,
+
    /** Alternative naming */
    LTC_DER_SEQ_SET = LTC_DER_SEQ_UNORDERED,
    LTC_DER_SEQ_SEQUENCE = LTC_DER_SEQ_ORDERED,
@@ -652,6 +655,8 @@ int der_length_custom_type(const ltc_asn1_list *root,
 
 #ifdef LTC_SOURCE
 /* internal helper functions */
+#define LTC_DER_SEQ_FLAGS_MASK 0x0FFu
+
 int der_decode_custom_type_ex(const unsigned char *in, unsigned long  inlen,
                            ltc_asn1_list *root,
                            ltc_asn1_list *list,     unsigned long  outlen, unsigned int flags);
